@@ -1,0 +1,4 @@
+mode=decoding
+file_to_read=CodedTestNew.bin
+file_to_write=DecodedTestNew.txt
+buffer_size=4
