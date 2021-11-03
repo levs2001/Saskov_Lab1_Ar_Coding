@@ -1,6 +1,7 @@
 import java.io.*;
 
 public class FileWriterBin {
+    //TODO: Remove extra functions, make buffered
     private final FileOutputStream fOut;
     private final DataOutputStream dOut;
 
