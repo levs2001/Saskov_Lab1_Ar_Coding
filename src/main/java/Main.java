@@ -17,10 +17,11 @@ public class Main {
         }
 
         if (coding != null) {
-            byte b = reader.readByte();
-            while (b != MyReader.END_STREAM) {
-                coding.putByte(b);
-                b = reader.readByte();
+            // dByte should be type of int to see end of stream, don't use byte straight
+            int dByte = reader.readByte();
+            while (dByte != MyReader.END_STREAM) {
+                coding.putByte((byte)dByte);
+                dByte = reader.readByte();
             }
 
             coding.finish();

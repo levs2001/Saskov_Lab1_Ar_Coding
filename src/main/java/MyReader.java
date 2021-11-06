@@ -8,11 +8,11 @@ public class MyReader {
         fileBuffStream = new BufferedInputStream(getFileStream(filename), bufferSize);
     }
 
-    public byte readByte() {
-        byte dByte = END_STREAM;
+    public int readByte() {
+        int dByte = END_STREAM;
 
         try {
-            dByte = (byte)fileBuffStream.read();
+            dByte = fileBuffStream.read();
         } catch (IOException e) {
             MyException.exception(MyException.ExceptionType_e.FILE_READING_ERR);
         }
