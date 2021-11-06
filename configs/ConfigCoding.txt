@@ -1,4 +1,4 @@
 mode=coding
-file_to_read=Test.txt
-file_to_write=CodedTestNew.bin
+file_to_read=test_files\\Test.txt
+file_to_write=test_files\\CodedTestNew.bin
 buffer_size=4

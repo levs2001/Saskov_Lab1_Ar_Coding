@@ -3,7 +3,7 @@ public class ArithmeticCoder extends ArithmeticCodingProcessor {
     private int bufferByteFreeBits;
     private int bitsToFollow;
 
-    public ArithmeticCoder(double normalWeightsMax, double ceilingWeightsMax, FileWriterBin out) {
+    public ArithmeticCoder(double normalWeightsMax, double ceilingWeightsMax, MyWriter out) {
         super(normalWeightsMax, ceilingWeightsMax, out);
         bufferByte = 0;
         bufferByteFreeBits = 8;
@@ -21,10 +21,10 @@ public class ArithmeticCoder extends ArithmeticCodingProcessor {
 
     @Override
     public void finish() {
-        // Just write final byte
         updateWorkingRange(alphabetLen);
         tryPutBits();
         writeFinalByte();
+        out.flush();
     }
 
     private void updateWorkingRange(int index) {
@@ -37,10 +37,10 @@ public class ArithmeticCoder extends ArithmeticCodingProcessor {
         while (true) {
             if (workingHigh < 0.5) {
                 zoomIn(0);
-                writeBit(0);
+                writeBitPlusFollow(0);
             } else if (workingLow >= 0.5) {
                 zoomIn(1);
-                writeBit(1);
+                writeBitPlusFollow(1);
             } else if (workingLow >= 0.25 && workingHigh < 0.75) {
                 zoomIn(0.5);
                 bitsToFollow++;
@@ -57,8 +57,8 @@ public class ArithmeticCoder extends ArithmeticCodingProcessor {
 
     private void writeFinalByte() {
         boolean isLeftInFirstQtr = (workingLow < 0.25);
-        writeBit(isLeftInFirstQtr ? 0 : 1);
-        writeBit(!isLeftInFirstQtr ? 0 : 1);
+        writeBitPlusFollow(isLeftInFirstQtr ? 0 : 1);
+        writeBitPlusFollow(!isLeftInFirstQtr ? 0 : 1);
 
         bufferByte <<= bufferByteFreeBits;
         bufferByteFreeBits = 0;

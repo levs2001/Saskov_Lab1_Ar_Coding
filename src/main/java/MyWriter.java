@@ -1,43 +1,33 @@
 import java.io.*;
 
-public class FileWriterBin {
+public class MyWriter {
     //TODO: Remove extra functions, make buffered
-    private final FileOutputStream fOut;
-    private final DataOutputStream dOut;
+    private final BufferedOutputStream fileBuffStream;
 
-    FileWriterBin(String filename) {
-        fOut = getFileStream(filename);
-        dOut = new DataOutputStream(fOut);
-    }
-
-    public void writeDouble(double val) {
-        try {
-            dOut.writeDouble(val);
-        } catch (IOException e) {
-            MyException.exception(MyException.ExceptionType_e.CANT_WRITE_IN_CODED_FILE);
-        }
-    }
-
-    public void writeInt(int val) {
-        try {
-            dOut.writeInt(val);
-        } catch (IOException e) {
-            MyException.exception(MyException.ExceptionType_e.CANT_WRITE_IN_CODED_FILE);
-        }
+    MyWriter(String filename, int bufferSize) {
+        fileBuffStream = new BufferedOutputStream(getFileStream(filename), bufferSize);
     }
 
     public void writeByte(int sym) {
         try {
-            dOut.write(sym);
+            fileBuffStream.write(sym);
         } catch (IOException e) {
             MyException.exception(MyException.ExceptionType_e.CANT_WRITE_IN_CODED_FILE);
+        }
+    }
+
+    public void flush() {
+        try {
+            fileBuffStream.flush();
+        } catch (IOException e) {
+            //TODO: Make special exception for this case
+            MyException.exception(MyException.ExceptionType_e.FILE_CLOSE_ERR);
         }
     }
 
     public void close() {
         try {
-            dOut.close();
-            fOut.close();
+            fileBuffStream.close();
         } catch (IOException e) {
             MyException.exception(MyException.ExceptionType_e.FILE_CLOSE_ERR);
         }

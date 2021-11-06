@@ -1,4 +1,4 @@
 mode=decoding
-file_to_read=CodedTestNew.bin
-file_to_write=DecodedTestNew.txt
+file_to_read=test_files\\CodedTestNew.bin
+file_to_write=test_files\\DecodedTestNew.txt
 buffer_size=4

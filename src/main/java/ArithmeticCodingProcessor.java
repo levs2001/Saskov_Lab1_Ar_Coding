@@ -7,7 +7,7 @@ public abstract class ArithmeticCodingProcessor {
     protected final double[] splitPoints;
     protected final double normalWeightsMax;
     protected final double ceilingWeightsMax;
-    protected final FileWriterBin out;
+    protected final MyWriter out;
 
     protected double workingLow;
     protected double workingHigh;
@@ -16,7 +16,7 @@ public abstract class ArithmeticCodingProcessor {
 
     public abstract void finish();
 
-    protected ArithmeticCodingProcessor(double normalWeightsMax, double ceilingWeightsMax, FileWriterBin out) {
+    protected ArithmeticCodingProcessor(double normalWeightsMax, double ceilingWeightsMax, MyWriter out) {
         this.normalWeightsMax = normalWeightsMax;
         this.ceilingWeightsMax = ceilingWeightsMax;
         this.weights = new double[alphabetLen + 1];
@@ -39,6 +39,7 @@ public abstract class ArithmeticCodingProcessor {
         splitPoints[0] = 0;
         for (int i = 0; i < alphabetLen + 1; i++) {
             sum += weights[i];
+            splitPoints[i + 1] = sum / fullSum;
         }
     }
 
