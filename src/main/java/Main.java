@@ -11,9 +11,9 @@ public class Main {
 
         ArithmeticCodingProcessor coding = null;
         if (config.getWorkType() == Config.WorkType.CODING) {
-            coding = new ArithmeticCoder(190, 256, writer);
+            coding = new ArithmeticCoder(writer);
         } else if (config.getWorkType() == Config.WorkType.DECODING) {
-            coding = new ArithmeticDecoder(190, 256, writer);
+            coding = new ArithmeticDecoder(writer);
         }
 
         if (coding != null) {

@@ -1,11 +1,23 @@
 import java.io.*;
 
 public class MyWriter {
-    //TODO: Remove extra functions, make buffered
+    private static final int BITS_IN_BYTE_COUNT = 8;
+
     private final BufferedOutputStream fileBuffStream;
+    private int bufferByte = 0;
+    private int bufferByteFreeBits = BITS_IN_BYTE_COUNT;
 
     MyWriter(String filename, int bufferSize) {
         fileBuffStream = new BufferedOutputStream(getFileStream(filename), bufferSize);
+    }
+
+    public void writeBit(int bit) {
+        if (bufferByteFreeBits == 0) {
+            writeByte(bufferByte);
+            clearBuffByte();
+        }
+        bufferByte = ((bufferByte << 1) | bit);
+        bufferByteFreeBits--;
     }
 
     public void writeByte(int sym) {
@@ -17,11 +29,17 @@ public class MyWriter {
     }
 
     public void flush() {
+        if(bufferByteFreeBits != BITS_IN_BYTE_COUNT) {
+            // Case when some bits are written in bufferByte
+            bufferByte <<= bufferByteFreeBits;
+            bufferByteFreeBits = 0;
+            writeByte(bufferByte);
+        }
+
         try {
             fileBuffStream.flush();
         } catch (IOException e) {
-            //TODO: Make special exception for this case
-            MyException.exception(MyException.ExceptionType_e.FILE_CLOSE_ERR);
+            MyException.exception(MyException.ExceptionType_e.FLUSH_ERROR);
         }
     }
 
@@ -41,5 +59,10 @@ public class MyWriter {
             MyException.exception(MyException.ExceptionType_e.FILE_WRITING_NOT_OPEN);
         }
         return fileStream;
+    }
+
+    private void clearBuffByte() {
+        bufferByte = 0;
+        bufferByteFreeBits = BITS_IN_BYTE_COUNT;
     }
 }

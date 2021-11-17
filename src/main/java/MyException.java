@@ -9,7 +9,7 @@ public class MyException {
         FILE_CLOSE_ERR,
         CANT_WRITE_IN_CODED_FILE,
         CANT_WRITE_IN_DECODED_FILE,
-        BIG_FILE
+        FLUSH_ERROR
     }
 
     static public void exception(ExceptionType_e eType) {
@@ -23,7 +23,7 @@ public class MyException {
             case CANT_WRITE_IN_CODED_FILE -> System.out.println("Error: Can't write in coded file!");
             case CANT_WRITE_IN_DECODED_FILE -> System.out.println("Error: Can't write in file!");
             case FILE_READING_ERR -> System.out.println("Error: Can't read byte from file");
-            case BIG_FILE -> System.out.println("Big file: information can be lost!");
+            case FLUSH_ERROR -> System.out.println("Error: during flushing buffer");
         }
     }
 }

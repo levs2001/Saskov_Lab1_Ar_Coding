@@ -1,15 +1,17 @@
 public class ArithmeticDecoder extends ArithmeticCodingProcessor {
+    private static final int FIRST_BIT_MASK = 0x01;
+
     private boolean isEnd;
     private double probableLow;
     private double probableHigh;
     int lowSplitPointInd;
     int highSplitPointInd;
 
-    public ArithmeticDecoder(double normalWeightsMax, double ceilingWeightsMax, MyWriter out) {
-        super(normalWeightsMax, ceilingWeightsMax, out);
+    public ArithmeticDecoder(MyWriter out) {
+        super(out);
         isEnd = false;
-        probableLow = 0;
-        probableHigh = 1;
+        probableLow = SEGM_MIN;
+        probableHigh = SEGM_MAX;
 
         lowSplitPointInd = -1;
         highSplitPointInd = splitPoints.length;
@@ -20,7 +22,7 @@ public class ArithmeticDecoder extends ArithmeticCodingProcessor {
         if (isEnd)
             return;
         for (int i = 7; i >= 0; i--) {
-            int bit = (val >> i) & 0x01;
+            int bit = (val >> i) & FIRST_BIT_MASK;
             processNextBit(bit);
             tryOutputByte();
         }
@@ -64,8 +66,6 @@ public class ArithmeticDecoder extends ArithmeticCodingProcessor {
             highSplitPointInd = splitPoints.length;
             if (index == alphabetLen) {
                 isEnd = true;
-                ///
-//                out.flush();
             } else {
                 updateWorkingRange(index);
                 tryZoomIn();
@@ -73,7 +73,6 @@ public class ArithmeticDecoder extends ArithmeticCodingProcessor {
                 out.writeByte(index);
             }
         }
-//        return rc;
     }
 
     private void updateWorkingRange(int index) {
@@ -84,12 +83,12 @@ public class ArithmeticDecoder extends ArithmeticCodingProcessor {
 
     private void tryZoomIn() {
         while (true) {
-            if (workingHigh < 0.5) {
-                zoomIn(0);
-            } else if (workingLow >= 0.5) {
-                zoomIn(1);
-            } else if (workingLow >= 0.25 && workingHigh < 0.75) {
-                zoomIn(0.5);
+            if (workingHigh < SECOND_QTR_MAX) {
+                zoomIn(SEGM_MIN);
+            } else if (workingLow >= SECOND_QTR_MAX) {
+                zoomIn(SEGM_MAX);
+            } else if (workingLow >= FIRST_QTR_MAX && workingHigh < THIRD_QTR_MAX) {
+                zoomIn(SECOND_QTR_MAX);
             } else {
                 break;
             }

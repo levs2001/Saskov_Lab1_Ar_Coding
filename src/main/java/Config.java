@@ -57,7 +57,7 @@ public class Config {
     }
 
     private void setParam(String paramStr) {
-        String paramSet[] = paramStr.split(SPLITTER_STRING);
+        String[] paramSet = paramStr.split(SPLITTER_STRING);
 
         switch (paramSet[PARAM_NAME_IND]) {
             case MODE_STRING:

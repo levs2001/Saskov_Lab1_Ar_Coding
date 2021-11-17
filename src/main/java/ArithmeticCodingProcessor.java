@@ -3,10 +3,17 @@ import java.util.Arrays;
 public abstract class ArithmeticCodingProcessor {
     public static final int alphabetLen = 256;
     protected static final double weightsMin = 1;
+
+    protected static final double SEGM_MIN = 0;
+    protected static final double FIRST_QTR_MAX = 0.25;
+    protected static final double SECOND_QTR_MAX = 0.5;
+    protected static final double THIRD_QTR_MAX = 0.75;
+    protected static final double SEGM_MAX = 1;
+
     protected final double[] weights;
     protected final double[] splitPoints;
-    protected final double normalWeightsMax;
-    protected final double ceilingWeightsMax;
+    protected final double normalWeightsMax = 190;
+    protected final double ceilingWeightsMax = 256;
     protected final MyWriter out;
 
     protected double workingLow;
@@ -16,9 +23,7 @@ public abstract class ArithmeticCodingProcessor {
 
     public abstract void finish();
 
-    protected ArithmeticCodingProcessor(double normalWeightsMax, double ceilingWeightsMax, MyWriter out) {
-        this.normalWeightsMax = normalWeightsMax;
-        this.ceilingWeightsMax = ceilingWeightsMax;
+    protected ArithmeticCodingProcessor(MyWriter out) {
         this.weights = new double[alphabetLen + 1];
         Arrays.fill(this.weights, weightsMin);
         splitPoints = new double[alphabetLen + 2];

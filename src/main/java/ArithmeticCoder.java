@@ -1,19 +1,16 @@
 public class ArithmeticCoder extends ArithmeticCodingProcessor {
-    private int bufferByte;
-    private int bufferByteFreeBits;
+    private static final int MASK_TO_UNSIGN = 0xFF;
+
     private int bitsToFollow;
 
-    public ArithmeticCoder(double normalWeightsMax, double ceilingWeightsMax, MyWriter out) {
-        super(normalWeightsMax, ceilingWeightsMax, out);
-        bufferByte = 0;
-        bufferByteFreeBits = 8;
+    public ArithmeticCoder(MyWriter out) {
+        super(out);
         bitsToFollow = 0;
     }
 
     @Override
     public void putByte(byte val) {
-        // Mask to cast without sign and get index
-        int index = val & 0xFF;
+        int index = val & MASK_TO_UNSIGN;
         updateWorkingRange(index);
         tryPutBits();
         updateWeight(index);
@@ -24,7 +21,6 @@ public class ArithmeticCoder extends ArithmeticCodingProcessor {
         updateWorkingRange(alphabetLen);
         tryPutBits();
         writeFinalByte();
-        out.flush();
     }
 
     private void updateWorkingRange(int index) {
@@ -35,14 +31,14 @@ public class ArithmeticCoder extends ArithmeticCodingProcessor {
 
     private void tryPutBits() {
         while (true) {
-            if (workingHigh < 0.5) {
-                zoomIn(0);
+            if (workingHigh < SECOND_QTR_MAX) {
+                zoomIn(SEGM_MIN);
                 writeBitPlusFollow(0);
-            } else if (workingLow >= 0.5) {
-                zoomIn(1);
+            } else if (workingLow >= SECOND_QTR_MAX) {
+                zoomIn(SEGM_MAX);
                 writeBitPlusFollow(1);
-            } else if (workingLow >= 0.25 && workingHigh < 0.75) {
-                zoomIn(0.5);
+            } else if (workingLow >= FIRST_QTR_MAX && workingHigh < THIRD_QTR_MAX) {
+                zoomIn(SECOND_QTR_MAX);
                 bitsToFollow++;
             } else {
                 break;
@@ -56,35 +52,17 @@ public class ArithmeticCoder extends ArithmeticCodingProcessor {
     }
 
     private void writeFinalByte() {
-        boolean isLeftInFirstQtr = (workingLow < 0.25);
+        boolean isLeftInFirstQtr = (workingLow < FIRST_QTR_MAX);
         writeBitPlusFollow(isLeftInFirstQtr ? 0 : 1);
         writeBitPlusFollow(!isLeftInFirstQtr ? 0 : 1);
-
-        bufferByte <<= bufferByteFreeBits;
-        bufferByteFreeBits = 0;
-        out.writeByte(bufferByte);
-        clearBuffByte();
+        out.flush();
     }
 
     private void writeBitPlusFollow(int bit) {
-        writeBit(bit);
+        out.writeBit(bit);
         while (bitsToFollow > 0) {
-            writeBit(bit == 0 ? 1 : 0);
+            out.writeBit(bit == 0 ? 1 : 0);
             bitsToFollow--;
         }
-    }
-
-    private void writeBit(int bit) {
-        if (bufferByteFreeBits == 0) {
-            out.writeByte(bufferByte);
-            clearBuffByte();
-        }
-        bufferByte = ((bufferByte << 1) | bit);
-        bufferByteFreeBits--;
-    }
-
-    private void clearBuffByte() {
-        bufferByte = 0;
-        bufferByteFreeBits = 8;
     }
 }
