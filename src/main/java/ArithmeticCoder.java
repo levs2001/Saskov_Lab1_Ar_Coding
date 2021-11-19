@@ -18,7 +18,7 @@ public class ArithmeticCoder extends ArithmeticCodingProcessor {
 
     @Override
     public void finish() {
-        updateWorkingRange(alphabetLen);
+        updateWorkingRange(ALPHABET_LEN);
         tryPutBits();
         writeFinalByte();
     }
@@ -32,13 +32,13 @@ public class ArithmeticCoder extends ArithmeticCodingProcessor {
     private void tryPutBits() {
         while (true) {
             if (workingHigh < SECOND_QTR_MAX) {
-                zoomIn(SEGM_MIN);
+                getCloser(SEGM_MIN);
                 writeBitPlusFollow(0);
             } else if (workingLow >= SECOND_QTR_MAX) {
-                zoomIn(SEGM_MAX);
+                getCloser(SEGM_MAX);
                 writeBitPlusFollow(1);
             } else if (workingLow >= FIRST_QTR_MAX && workingHigh < THIRD_QTR_MAX) {
-                zoomIn(SECOND_QTR_MAX);
+                getCloser(SECOND_QTR_MAX);
                 bitsToFollow++;
             } else {
                 break;
@@ -46,9 +46,9 @@ public class ArithmeticCoder extends ArithmeticCodingProcessor {
         }
     }
 
-    private void zoomIn(double point) {
-        workingLow = 2 * workingLow - point;
-        workingHigh = 2 * workingHigh - point;
+    private void getCloser(double point) {
+        workingLow = NARROW_COEF * workingLow - point;
+        workingHigh = NARROW_COEF * workingHigh - point;
     }
 
     private void writeFinalByte() {

@@ -2,6 +2,7 @@ import java.io.*;
 
 public class MyWriter {
     private static final int BITS_IN_BYTE_COUNT = 8;
+    private static final int SHIFT = 1;
 
     private final BufferedOutputStream fileBuffStream;
     private int bufferByte = 0;
@@ -16,7 +17,7 @@ public class MyWriter {
             writeByte(bufferByte);
             clearBuffByte();
         }
-        bufferByte = ((bufferByte << 1) | bit);
+        bufferByte = ((bufferByte << SHIFT) | bit);
         bufferByteFreeBits--;
     }
 

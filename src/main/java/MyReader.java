@@ -2,6 +2,7 @@ import java.io.*;
 
 public class MyReader {
     public static final int END_STREAM = -1;
+
     private final BufferedInputStream fileBuffStream;
 
     MyReader(String filename, int bufferSize) {

@@ -1,11 +1,14 @@
 public class ArithmeticDecoder extends ArithmeticCodingProcessor {
     private static final int FIRST_BIT_MASK = 0x01;
+    private static final int SHIFT_TO_FIRST_BIT = 7;
+    private static final int NO_IND = -1;
+    private static final int MIN_PROBABLE_DIST_FOR_SPLP_INDS = 1;
 
     private boolean isEnd;
     private double probableLow;
     private double probableHigh;
-    int lowSplitPointInd;
-    int highSplitPointInd;
+    private int lowSplitPointInd;
+    private int highSplitPointInd;
 
     public ArithmeticDecoder(MyWriter out) {
         super(out);
@@ -13,7 +16,7 @@ public class ArithmeticDecoder extends ArithmeticCodingProcessor {
         probableLow = SEGM_MIN;
         probableHigh = SEGM_MAX;
 
-        lowSplitPointInd = -1;
+        lowSplitPointInd = NO_IND;
         highSplitPointInd = splitPoints.length;
     }
 
@@ -21,7 +24,7 @@ public class ArithmeticDecoder extends ArithmeticCodingProcessor {
     public void putByte(byte val) {
         if (isEnd)
             return;
-        for (int i = 7; i >= 0; i--) {
+        for (int i = SHIFT_TO_FIRST_BIT; i >= 0; i--) {
             int bit = (val >> i) & FIRST_BIT_MASK;
             processNextBit(bit);
             tryOutputByte();
@@ -38,7 +41,7 @@ public class ArithmeticDecoder extends ArithmeticCodingProcessor {
     }
 
     private void processNextBit(int bit) {
-        double shrinkPoint = shrinkPoint();
+        double shrinkPoint = getShrinkPoint();
         if (bit == 0) {
             probableHigh = shrinkPoint;
         } else {
@@ -60,15 +63,15 @@ public class ArithmeticDecoder extends ArithmeticCodingProcessor {
             } else
                 break;
         }
-        if (highSplitPointInd - lowSplitPointInd <= 1) {
+        if (highSplitPointInd - lowSplitPointInd <= MIN_PROBABLE_DIST_FOR_SPLP_INDS) {
             int index = lowSplitPointInd;
-            lowSplitPointInd = -1;
+            lowSplitPointInd = NO_IND;
             highSplitPointInd = splitPoints.length;
-            if (index == alphabetLen) {
+            if (index == ALPHABET_LEN) {
                 isEnd = true;
             } else {
                 updateWorkingRange(index);
-                tryZoomIn();
+                tryGetCloser();
                 updateWeight(index);
                 out.writeByte(index);
             }
@@ -81,14 +84,14 @@ public class ArithmeticDecoder extends ArithmeticCodingProcessor {
         workingLow = workingLow + splitPoints[index] * range;
     }
 
-    private void tryZoomIn() {
+    private void tryGetCloser() {
         while (true) {
             if (workingHigh < SECOND_QTR_MAX) {
-                zoomIn(SEGM_MIN);
+                getCloser(SEGM_MIN);
             } else if (workingLow >= SECOND_QTR_MAX) {
-                zoomIn(SEGM_MAX);
+                getCloser(SEGM_MAX);
             } else if (workingLow >= FIRST_QTR_MAX && workingHigh < THIRD_QTR_MAX) {
-                zoomIn(SECOND_QTR_MAX);
+                getCloser(SECOND_QTR_MAX);
             } else {
                 break;
             }
@@ -96,14 +99,14 @@ public class ArithmeticDecoder extends ArithmeticCodingProcessor {
 
     }
 
-    private void zoomIn(double expandPoint) {
-        workingLow = 2 * workingLow - expandPoint;
-        workingHigh = 2 * workingHigh - expandPoint;
-        probableLow = 2 * probableLow - expandPoint;
-        probableHigh = 2 * probableHigh - expandPoint;
+    private void getCloser(double expandPoint) {
+        workingLow = NARROW_COEF * workingLow - expandPoint;
+        workingHigh = NARROW_COEF * workingHigh - expandPoint;
+        probableLow = NARROW_COEF * probableLow - expandPoint;
+        probableHigh = NARROW_COEF * probableHigh - expandPoint;
     }
 
-    private double shrinkPoint() {
-        return probableLow + (probableHigh - probableLow) / 2;
+    private double getShrinkPoint() {
+        return probableLow + (probableHigh - probableLow) / NARROW_COEF;
     }
 }
